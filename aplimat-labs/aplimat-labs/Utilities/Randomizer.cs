@@ -11,13 +11,13 @@ namespace aplimat_labs.Utilities
         private double min, max;
         private Random random;
 
-        public Randomizer(double _min, double _max)
+        public Randomizer(int min, int max)
         {
-            this.min = _min;
-            this.max = _max + 1; //add one because
-            this.random = new Random();
+            this.min = min;
+            this.max = max + 1; //add one because Random's max is exclusive
+            random = new Random();
         }
-
+        
         public double GenerateDouble()
         {
             return random.NextDouble() * (max - min) + min;
@@ -29,3 +29,4 @@ namespace aplimat_labs.Utilities
         }
     }
 }
+

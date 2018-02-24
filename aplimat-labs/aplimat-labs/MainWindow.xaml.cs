@@ -1,5 +1,8 @@
-﻿using SharpGL;
+﻿using aplimat_labs.Models;
+using aplimat_labs.Utilities;
+using SharpGL;
 using SharpGL.SceneGraph.Primitives;
+using SharpGL.SceneGraph.Quadrics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,56 +17,96 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using aplimat_labs.Utilities;
 
 namespace aplimat_labs
 {
+
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for MainWindow.xml
     /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
+            this.KeyDown += new KeyEventHandler(MainWindow_KeyDown);
         }
 
-        private Randomizer rng = new Randomizer(-20,20);
-        private Randomizer colorRNG = new Randomizer(0, 1);
+        private CubeMesh lightCube = new CubeMesh()
+        {
+            Position = new Vector3(0, 0, 0),
+            Mass = 1
+        };
 
-        private List<CubeMesh> myCubes = new List<CubeMesh>();
+        private CubeMesh heavyCube = new CubeMesh()
+        {
+            Position = new Vector3(15, 0, 0),
+            Mass = 3
+        };
+
+        private CubeMesh mediumCube = new CubeMesh()
+        {
+            Position = new Vector3(20, 0, 0),
+            Mass = 2
+        };
+                
+        private Vector3 wind = new Vector3(0.06f, 0, 0);
+        private Vector3 gravity = new Vector3(0, -0.1f, 0);
+
         private void OpenGLControl_OpenGLDraw(object sender, SharpGL.SceneGraph.OpenGLEventArgs args)
         {
+
             OpenGL gl = args.OpenGL;
 
-            // Clear The Screen And The Depth Buffer
             gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
 
-            // Move Left And Into The Screen
             gl.LoadIdentity();
-            gl.Translate(0.0f, 0.0f, -100.0f);
+            gl.Translate(0.0f, 0.0f, -40.0f);
 
-
-            CubeMesh myCube = new CubeMesh();
-            myCube.Position = new Vector3(Gaussian.Generate(0, 15), rng.GenerateInt(), 0);
-            myCubes.Add(myCube);
-
-            foreach (var cube in myCubes)
+            lightCube.Draw(gl);
+            lightCube.ApplyForce(wind);
+            lightCube.ApplyForce(gravity);
+            if(lightCube.Position.x >=27)
             {
-                gl.Color(colorRNG.GenerateDouble(), colorRNG.GenerateDouble(), colorRNG.GenerateDouble());
-                cube.Draw(gl);
-                
+                lightCube.Velocity.x = -1;
+            }
+            if (lightCube.Position.y <=-15)
+            {
+                lightCube.Velocity.y = 1;
             }
 
-            gl.Rotate(rotation, 0.0f, 1.0f, 0.0f);
+            mediumCube.Draw(gl);
+            mediumCube.ApplyForce(wind);
+            mediumCube.ApplyForce(gravity);
+            if (mediumCube.Position.x >= 27)
+            {
+                mediumCube.Velocity.x = -1;
+            }
+            if (mediumCube.Position.y <= -15)
+            {
+                mediumCube.Velocity.y = 1;
+            }
 
-            //Teapot tp = new Teapot();
-            //tp.Draw(gl, 14, 1, OpenGL.GL_FILL);
+            heavyCube.Draw(gl);
+            heavyCube.ApplyForce(wind);
+            heavyCube.ApplyForce(gravity);
+            if (heavyCube.Position.x >= 27)
+            {
+                heavyCube.Velocity.x = -1;
+            }
+            if (heavyCube.Position.y <= -15)
+            {
+                heavyCube.Velocity.y = 1;
+            }
 
-            rotation += 3.0f;
+
+
+
         }
 
-        float rotation = 0;
+        private void MainWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+        }
 
         private void OpenGLControl_OpenGLInitialized(object sender, SharpGL.SceneGraph.OpenGLEventArgs args)
         {
@@ -78,6 +121,7 @@ namespace aplimat_labs
             float[] light0specular = new float[] { 0.8f, 0.8f, 0.8f, 1.0f };
 
             float[] lmodel_ambient = new float[] { 0.2f, 0.2f, 0.2f, 1.0f };
+
             gl.LightModel(OpenGL.GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
 
             gl.LightModel(OpenGL.GL_LIGHT_MODEL_AMBIENT, global_ambient);
@@ -86,11 +130,21 @@ namespace aplimat_labs
             gl.Light(OpenGL.GL_LIGHT0, OpenGL.GL_DIFFUSE, light0diffuse);
             gl.Light(OpenGL.GL_LIGHT0, OpenGL.GL_SPECULAR, light0specular);
 
+            gl.Color(0,1,1);
+
+            gl.Enable(OpenGL.GL_LIGHTING);
+            gl.Enable(OpenGL.GL_LIGHT0);
+            
+
+
+
             gl.ShadeModel(OpenGL.GL_SMOOTH);
 
-            
-            gl.Disable(OpenGL.GL_LIGHTING);
-            gl.Disable(OpenGL.GL_LIGHT0);
+        }
+
+        private void OpenGLControl_MouseMove(object sender, MouseEventArgs e)
+        {
+
         }
     }
 }

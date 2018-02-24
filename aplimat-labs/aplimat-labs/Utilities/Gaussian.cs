@@ -15,8 +15,7 @@ namespace aplimat_labs.Utilities
             var u1 = r.NextDouble();
             var u2 = r.NextDouble();
 
-            var randomStandardNormal = Math.Sqrt(-2.0 * Math.Log(u1))
-                * Math.Sin(2.0 * Math.PI * u2);
+            var randomStandardNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
 
             return mean + stdDev * randomStandardNormal;
         }
